@@ -8,12 +8,7 @@ import {
   Space,
   message,
 } from "antd";
-import {
-  ClearOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  RobotOutlined,
-} from "@ant-design/icons";
+import { ClearOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useAppDispatch } from "../store/hooks";
 import { clearChat } from "../store/chatSlice";
 import { useNavigate } from "react-router-dom";
