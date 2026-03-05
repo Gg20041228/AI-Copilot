@@ -1,0 +1,124 @@
+.history-sider-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 56px 12px 16px;
+}
+
+.history-sider-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+  margin-top: 15px;
+}
+
+.history-sider-title.ant-typography {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.history-new-btn.ant-btn {
+  border-radius: 10px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.history-item {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.history-item:hover {
+  background: rgba(16, 119, 133, 0.08);
+  border-color: rgba(16, 119, 133, 0.2);
+}
+
+.history-item-active {
+  background: rgba(16, 119, 133, 0.14);
+  border-color: rgba(16, 119, 133, 0.3);
+}
+
+/* 修改单个历史记录项为 Flex 布局，方便左右对齐 */
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: all 0.2s;
+  /* 确保超出范围的文本能正确溢出隐藏 */
+  overflow: hidden; 
+}
+
+/* 左侧内容区：图标 + 文字 */
+.history-item-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0; /* 极其重要：允许内部元素截断缩小 */
+}
+
+/* 文字太长自动省略号 */
+.history-item-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 隐藏在右侧的 “...” 操作按钮 */
+.history-item-action {
+  opacity: 0; /* 默认完全透明隐藏 */
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  color: #888;
+}
+
+.history-item-action:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: #333;
+}
+
+/* 只有当鼠标悬浮在整个 item 上时，才显示右侧的 “...” */
+.history-item:hover .history-item-action,
+.history-item-active .history-item-action {
+  opacity: 1;
+}
+
+/* 重命名输入框样式覆盖，使其融入背景 */
+.history-rename-input {
+  padding: 0 4px;
+  height: 24px;
+  font-size: 14px;
+  border: 1px solid #1677ff;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .history-sider-inner {
+    padding-top: 52px;
+  }
+}

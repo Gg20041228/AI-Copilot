@@ -1,0 +1,117 @@
+﻿.message-input-wrap {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 16px; /* 防止在极窄屏幕下贴边 */
+}
+
+.message-input-wrap-center {
+  max-width: 960px;
+}
+
+/* 🌟 重构 Shell 为 Flex 布局，让按钮永远在右下角对齐 */
+.message-input-shell {
+  display: flex;
+  align-items: center; /* 内容中间对齐 */
+  width: 100%;
+  min-height: 56px;
+  border-radius: 28px;
+  padding: 6px 8px 6px 16px; /* 给内部组件留出呼吸空间 */
+  background:
+    radial-gradient(circle at 14% 8%, rgba(255, 255, 255, 0.95), transparent 38%),
+    linear-gradient(165deg, rgba(255, 255, 255, 0.95), rgba(246, 251, 252, 0.92));
+  border: 1px solid rgba(218, 231, 235, 0.88);
+  box-shadow:
+    0 28px 50px rgba(14, 44, 53, 0.12),
+    0 8px 14px rgba(14, 44, 53, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+.message-input-shell:focus-within {
+  border-color: rgba(15, 139, 141, 0.46);
+  box-shadow:
+    0 30px 56px rgba(12, 56, 62, 0.15),
+    0 0 0 4px rgba(15, 139, 141, 0.13);
+  transform: translateY(-1px); /* 聚焦时微微上浮，手感极佳 */
+}
+
+/* 🌟 文本域样式重置 */
+.message-input-textarea {
+  flex: 1; /* 霸占左侧所有空间 */
+  margin-right: 8px; /* 和右侧按钮保持距离 */ 
+}
+
+.message-input-textarea.ant-input-textarea .ant-input {
+  background: transparent !important;
+  color: #19292f;
+  font-size: 15px;
+  line-height: 1.6;
+  padding: 8px 0; /* 依靠外层 shell 的 padding 撑开，自己不留内边距 */
+  resize: none;
+}
+
+/* 强制清除 Ant Design 阴影残留 */
+.message-input-textarea.ant-input-textarea .ant-input:focus,
+.message-input-textarea.ant-input-textarea .ant-input:hover {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.message-input-textarea.ant-input-textarea .ant-input::placeholder {
+  color: #8ba0a7;
+}
+
+/* 美化内部滚动条 */
+.message-input-textarea.ant-input-textarea .ant-input::-webkit-scrollbar {
+  width: 6px;
+}
+.message-input-textarea.ant-input-textarea .ant-input::-webkit-scrollbar-thumb {
+  background-color: #d1e0e3;
+  border-radius: 4px;
+}
+
+/* 🌟 发送按钮：移除绝对定位，随波逐流 */
+.message-input-send-btn.ant-btn.ant-btn-primary {
+  flex-shrink: 0; /* 防止被文本框挤压变形 */
+  width: 42px;
+  height: 42px;
+  margin-bottom: 1px; /* 微调底部对齐的视觉差 */
+  border: none;
+  background: linear-gradient(138deg, #0f8b8d, #1b6f80 62%, #2a8f95);
+  box-shadow:
+    0 12px 24px rgba(16, 84, 94, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transition: all 0.25s ease;
+}
+
+.message-input-send-btn.ant-btn.ant-btn-primary .anticon {
+  font-size: 16px;
+  margin-left: 3px; /* 让纸飞机图标视觉上居中 */
+}
+
+.message-input-send-btn.ant-btn.ant-btn-primary:not(:disabled):hover {
+  background: linear-gradient(138deg, #0d7d7f, #175f71 62%, #257a85);
+  transform: scale(1.05); /* 悬浮放大取代以前的位移，更显大气 */
+}
+
+.message-input-send-btn.ant-btn.ant-btn-primary:disabled {
+  background: #cbd8db;
+  box-shadow: none;
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .message-input-shell {
+    min-height: 50px;
+    border-radius: 24px;
+    padding: 4px 6px 4px 12px;
+  }
+  .message-input-textarea.ant-input-textarea .ant-input {
+    font-size: 14px;
+  }
+  .message-input-send-btn.ant-btn.ant-btn-primary {
+    width: 38px;
+    height: 38px;
+  }
+}

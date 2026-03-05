@@ -1,0 +1,54 @@
+﻿:root {
+  --bg-0: #f3f6f7;
+  --bg-1: #e9eff0;
+  --panel: rgba(255, 255, 255, 0.78);
+  --panel-border: rgba(255, 255, 255, 0.55);
+  --text-main: #182329;
+  --text-subtle: #61727a;
+  --brand: #0f8b8d;
+  --brand-hover: #0c787a;
+  --assistant-bg: #ffffff;
+  --assistant-border: #dce5e8;
+  --user-bg: #1b6d77;
+  --user-bg-soft: #256f79;
+  --shadow-soft: 0 12px 36px rgba(13, 39, 46, 0.08);
+  --shadow-bubble: 0 8px 24px rgba(14, 39, 45, 0.1);
+  --radius-xl: 20px;
+  --radius-lg: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family:
+    "Manrope",
+    "Noto Sans SC",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  color: var(--text-main);
+  background:
+    radial-gradient(circle at 8% 4%, rgba(30, 115, 129, 0.12), transparent 30%),
+    radial-gradient(circle at 92% 12%, rgba(124, 166, 173, 0.15), transparent 34%),
+    linear-gradient(165deg, var(--bg-0), var(--bg-1));
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(22, 78, 89, 0.26);
+  border-radius: 999px;
+}

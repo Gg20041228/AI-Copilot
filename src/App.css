@@ -1,0 +1,76 @@
+.app-layout {
+  min-height: 100vh;
+  width: 100%;
+  background: transparent;
+  display: flex;
+  flex-direction: row;
+}
+
+.chat-main-layout.ant-layout {
+  background: transparent;
+  min-width: 0;
+}
+
+.history-sider.ant-layout-sider {
+  background: rgba(243, 248, 250, 0.9);
+  border-right: 1px solid rgba(206, 220, 224, 0.75);
+  backdrop-filter: blur(10px);
+}
+
+.sider-toggle-btn.ant-btn.ant-btn-text {
+  position: fixed;
+  top: 32px;
+  left: 18px;
+  z-index: 1001;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow-soft);
+  width: 36px;
+  height: 36px;
+  color: var(--text-subtle);
+}
+
+.sider-toggle-btn.ant-btn.ant-btn-text:hover {
+  color: var(--brand);
+  background: rgba(15, 139, 141, 0.1);
+}
+
+.chat-content.ant-layout-content {
+  padding: 22px 16px 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chat-footer.ant-layout-footer {
+  background: transparent;
+  padding: 10px 16px 18px;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .history-sider.ant-layout-sider {
+    position: absolute;
+    z-index: 10;
+    height: 100vh;
+  }
+
+  .sider-toggle-btn.ant-btn.ant-btn-text {
+    top: 24px;
+    left: 10px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .chat-content.ant-layout-content {
+    padding: 14px 10px 8px;
+  }
+
+  .chat-footer.ant-layout-footer {
+    padding: 8px 10px 12px;
+  }
+}
