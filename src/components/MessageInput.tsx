@@ -106,7 +106,7 @@ export const MessageInput = ({ variant = "footer" }: MessageInputProps) => {
 
       // 实时将语音结果上屏到输入框
       if (finalTranscript || interimTranscript) {
-        setInputValue((prev) => {
+        setInputValue(() => {
           // 这里简单处理：每次替换输入框内容，或者你可以设计追加逻辑
           return finalTranscript || interimTranscript;
         });
