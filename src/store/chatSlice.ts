@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { supabase } from "../lib/supabase";
 
+// 定义单条消息的类型
 export interface Message {
   id: string;
   role: "user" | "assistant";
@@ -15,18 +16,28 @@ export interface Session {
   created_at: string;
 }
 
+// 定义整个Slice的状态类型
 interface ChatState {
   messages: Message[];
   isLoading: boolean;
   sessions: Session[];
   currentSessionId: string | null;
+  resumeContext: string | null;
+  // isEditorOpen: boolean; // 控制右侧编辑器是否弹出
+  // currentCode: string; // 存储编辑器内的代码内容
+  // editorLanguage: string;
 }
 
+// 初始化默认状态
 const initialState: ChatState = {
   messages: [],
   isLoading: false,
   sessions: [],
   currentSessionId: null,
+  resumeContext: null,
+  // isEditorOpen: false, // 默认隐藏，等待面试官“唤醒”
+  // currentCode: "// 在这里编写你的代码...\n",
+  // editorLanguage: "javascript",
 };
 
 // ==========================================
@@ -133,10 +144,12 @@ export const deleteSession = createAsyncThunk(
 // Redux Slice 逻辑
 // ==========================================
 
+// 创建Slice(自动生成Actions和Reducers)
 const chatSlice = createSlice({
   name: "chat",
   initialState,
   reducers: {
+    // 发送新消息
     // 乐观更新：用户发消息时，先立刻展示在页面上，不等数据库响应，体验极速
     addMessage: (state, action: PayloadAction<Message>) => {
       state.messages.push(action.payload);
@@ -163,6 +176,19 @@ const chatSlice = createSlice({
       state.messages = [];
       state.currentSessionId = null;
     },
+    setResumeContext: (state, action: PayloadAction<string | null>) => {
+      state.resumeContext = action.payload;
+    },
+    // setEditorOpen: (state, action: PayloadAction<boolean>) => {
+    //   state.isEditorOpen = action.payload;
+    // },
+    // updateCode: (state, action: PayloadAction<string>) => {
+    //   state.currentCode = action.payload;
+    // },
+    // // reducer 中增加切换 Action
+    // setEditorLanguage: (state, action: PayloadAction<string>) => {
+    //   state.editorLanguage = action.payload;
+    // },
   },
   // 监听上面的异步 Thunks 的生命周期
   extraReducers: (builder) => {
@@ -210,6 +236,7 @@ export const {
   setCurrentSession,
   setLoading,
   clearChat,
+  setResumeContext,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

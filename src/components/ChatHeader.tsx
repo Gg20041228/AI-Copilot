@@ -75,9 +75,8 @@ export const ChatHeader = () => {
         </Text>
       </Space>
 
-      {/* 右侧：操作区 (把你原有的清空按钮和头像并排放在一起) */}
+      {/* 右侧：操作区*/}
       <Space size="middle" className="chat-header-right">
-        {/* 保留你原有的清空对话按钮 */}
         <Button
           type="text"
           icon={<ClearOutlined />}
@@ -87,7 +86,7 @@ export const ChatHeader = () => {
           <span className="clear-btn-text">清空对话</span>
         </Button>
 
-        {/* 新增的用户头像与下拉菜单 */}
+        {/* 用户头像与下拉菜单 */}
         <Dropdown menu={{ items: dropdownItems }} placement="bottomRight" arrow>
           <div className="user-dropdown-trigger">
             <Avatar

@@ -1,0 +1,27 @@
+/* 🌟 强制让 Select 框里的当前文字变白 */
+.editor-toolbar .ant-select-selection-item {
+  color: #f7f5f5 !important;
+  font-size: 13px;
+}
+
+/* 🌟 下拉面板的背景和文字样式 */
+.editor-lang-dropdown {
+  background-color: #252526 !important; /* 匹配编辑器背景 */
+  border: 1px solid #454545;
+  padding: 4px;
+}
+
+/* 🌟 下拉项的基础样式 */
+.editor-lang-dropdown .ant-select-item {
+  color: #e90b0b !important;
+  transition: all 0.2s;
+}
+
+/* 🌟 鼠标悬浮时的样式 */
+.editor-lang-dropdown .ant-select-item-option-active {
+  background-color: #37373d !important; /* 稍微亮一点的深色 */
+  color: #ffffff !important;
+}
+
+
+

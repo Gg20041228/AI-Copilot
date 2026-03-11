@@ -24,7 +24,10 @@ export const ChatPage = () => {
     });
   }, []);
 
-  const welcomeTitle = useMemo(() => `${userName}，我需要为您做什么？`, [userName]);
+  const welcomeTitle = useMemo(
+    () => `${userName}，我需要为您做什么？`,
+    [userName],
+  );
 
   return (
     <Layout className="app-layout chat-page-layout">
@@ -61,7 +64,9 @@ export const ChatPage = () => {
           ) : (
             <section className="chat-empty-state">
               <h1 className="chat-empty-title">{welcomeTitle}</h1>
-              <p className="chat-empty-subtitle">可以直接输入岗位、技术栈或面试方向</p>
+              <p className="chat-empty-subtitle">
+                可以直接输入岗位、技术栈或面试方向
+              </p>
               <MessageInput variant="center" />
             </section>
           )}

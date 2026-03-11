@@ -13,7 +13,7 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "./MessageList.css";
 import remarkGfm from "remark-gfm";
 
-// --- 核心新增：独立的 CodeBlock 组件 ---
+//独立的 CodeBlock 组件
 const CodeBlock = ({
   language,
   value,
@@ -21,11 +21,13 @@ const CodeBlock = ({
   language: string;
   value: string;
 }) => {
+  // 状态：记录当前是否处于"已复制"状态
   const [isCopied, setIsCopied] = useState(false);
-
+  // 触发复制操作
   const handleCopy = () => {
     // 调用现代浏览器的 Clipboard API
     navigator.clipboard.writeText(value).then(() => {
+      // 切换为绿色的“已复制”状态
       setIsCopied(true);
       // 2秒后恢复成"复制"状态
       setTimeout(() => setIsCopied(false), 2000);
@@ -33,6 +35,7 @@ const CodeBlock = ({
   };
 
   return (
+    // 最外层容器：负责把整个代码块（头部 + 底部代码）包裹成一个圆角卡片
     <div
       style={{
         borderRadius: "8px",
@@ -51,9 +54,10 @@ const CodeBlock = ({
           backgroundColor: "#2d2d2d", // 配合 vscDarkPlus 的深灰背景
           color: "#ccc",
           fontSize: "12px",
-          userSelect: "none",
+          userSelect: "none", //防止用户双击或拖拽时误选中头部的文字
         }}
       >
+        {/* 左侧：语言名称展示 */}
         <span style={{ textTransform: "uppercase", fontWeight: "bold" }}>
           {language || "text"}
         </span>
@@ -69,12 +73,15 @@ const CodeBlock = ({
           onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "#ccc")}
         >
+          {/* 根据 isCopied 状态，动态切换图标和文案 */}
           {isCopied ? (
             <>
+              {/* 成功状态：绿色对勾 + 已复制 */}
               <CheckOutlined style={{ color: "#52c41a" }} /> <span>已复制</span>
             </>
           ) : (
             <>
+              {/* 默认状态：复制图标 + 复制代码 */}
               <CopyOutlined /> <span>复制代码</span>
             </>
           )}

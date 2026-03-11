@@ -1,4 +1,4 @@
-// src/hooks/useChatStream.ts
+import { useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   addMessage,
@@ -10,12 +10,14 @@ import {
 } from "../store/chatSlice";
 import { message } from "antd";
 import { supabase } from "../lib/supabase"; // 新增：引入 supabase 获取当前用户
+import { ttsQueue } from "../utils/speechQueue";
 
 export const useChatStream = () => {
   const dispatch = useAppDispatch();
-  const { currentSessionId, messages, sessions } = useAppSelector(
-    (state) => state.chat,
-  );
+  const { currentSessionId, messages, sessions, resumeContext } =
+    useAppSelector((state) => state.chat);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  // const { currentCode } = useAppSelector((state) => state.chat);
 
   // --- 后台静默生成标题 ---
   const generateTitleSilently = async (
@@ -65,10 +67,12 @@ export const useChatStream = () => {
   const sendMessage = async (text: string) => {
     if (!text.trim()) return;
 
+    ttsQueue.cancel(); // 发送新消息前先取消当前的语音播报，避免重叠
+
     let targetSessionId = currentSessionId;
     let isAutoCreated = false; // 标记是否是刚刚自动创建的新会话
 
-    // 🌟 核心改造：如果没有选中会话，我们自动帮用户建一个！
+    // 如果没有选中会话，我们自动帮用户建一个！
     if (!targetSessionId) {
       dispatch(setLoading(true));
       try {
@@ -122,26 +126,48 @@ export const useChatStream = () => {
     const aiMessageId = (Date.now() + 1).toString();
     dispatch(addMessage({ id: aiMessageId, role: "assistant", content: "" }));
 
+    abortControllerRef.current = new AbortController();
+
     let fullAiResponse = "";
 
     try {
       // 容错处理：如果是刚自动创建的新会话，上下文直接给空数组，避免携带脏数据
       const contextMessages = isAutoCreated ? [] : messages;
 
+      const systemPrompt = resumeContext
+        ? `你是一个极其严苛且专业的一线大厂技术总监。用户上传了他的个人简历。
+以下是用户的简历内容（由PDF解析而来，可能包含少量格式错乱）：
+"""
+${resumeContext.substring(0, 3000)}
+"""
+
+你的任务是：
+1. 扮演面试官，专门针对他简历里的【项目经验】和【技术栈】进行“疯狂追问”。
+2. 可以问八股文，但绝对不要问空泛的八股文（比如“什么是闭包”），必须结合简历中的具体项目，问出类似“你在XX项目中遇到了什么难点？”“你写的XX技术在这个业务场景下是如何落地的？”等深度问题。
+3. 一次只问一个问题，等待用户回答后再追问。保持极强的压迫感和专业度。
+4. 穿插一点计网的问题，比如“你了解HTTP协议吗？也要有手撕题”`
+        : `你是一个专业的资深前端面试官，请通过对话来考察候选人的技术水平。一次只问一个问题。`;
+      const apiMessages = [
+        { role: "system", content: systemPrompt },
+        ...contextMessages.map((m) => ({
+          role: m.role,
+          content: m.content,
+        })),
+        { role: "user", content: text },
+      ];
       const response = await fetch(
         "https://api.deepseek.com/chat/completions",
         {
           method: "POST",
+          signal: abortControllerRef.current.signal,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_DEEPSEEK_API_KEY}`,
           },
+          // 发起流式请求
           body: JSON.stringify({
             model: "deepseek-chat",
-            messages: [...contextMessages, userMessage].map((m) => ({
-              role: m.role,
-              content: m.content,
-            })),
+            messages: apiMessages,
             stream: true,
           }),
         },
@@ -149,18 +175,25 @@ export const useChatStream = () => {
 
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
-
+      // 获取数据流读取器
       const reader = response.body?.getReader();
       const decoder = new TextDecoder("utf-8");
 
       if (reader) {
+        let sentenceBuffer = ""; // 句子缓冲区
+        //循环读取字节流
         while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
-
+          if (done) {
+            if (sentenceBuffer.trim()) {
+              ttsQueue.speak(sentenceBuffer); // 读完了，缓冲区还有残留，读出来
+            }
+            break;
+          }
+          // 将字节流解码成文本,并按行分割处理
           const chunk = decoder.decode(value, { stream: true });
           const lines = chunk.split("\n");
-
+          // 逐行解析符合 SSE 格式的数据
           for (const line of lines) {
             if (line.startsWith("data: ") && line !== "data: [DONE]") {
               try {
@@ -171,6 +204,12 @@ export const useChatStream = () => {
                 dispatch(
                   updateMessageContent({ id: aiMessageId, text: deltaContent }),
                 );
+
+                sentenceBuffer += deltaContent;
+                if (/[。！？\n]/.test(deltaContent)) {
+                  ttsQueue.speak(sentenceBuffer);
+                  sentenceBuffer = ""; // 清空缓冲区，积攒下一句
+                }
               } catch (e) {
                 // 忽略解析错误
               }
@@ -179,17 +218,21 @@ export const useChatStream = () => {
         }
       }
     } catch (error: any) {
-      console.error("API 请求出错", error);
-      message.error("网络请求失败，请检查配置或网络环境");
-      dispatch(
-        updateMessageContent({
-          id: aiMessageId,
-          text: "\n\n**[网络请求失败，请重试]**",
-        }),
-      );
+      if (error.name === "AbortError") {
+        console.log("用户手动终止了解析");
+      } else {
+        console.error("API 请求出错", error);
+        message.error("网络请求失败，请检查配置或网络环境");
+        dispatch(
+          updateMessageContent({
+            id: aiMessageId,
+            text: "\n\n[网络请求失败，请重试]",
+          }),
+        );
+      }
     } finally {
       dispatch(setLoading(false));
-
+      abortControllerRef.current = null;
       if (fullAiResponse) {
         // 保存 AI 回复到数据库
         dispatch(
@@ -207,6 +250,15 @@ export const useChatStream = () => {
       }
     }
   };
+  //暴露给组件的强制停止方法
+  const stopStreaming = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort(); // 杀掉网络请求
+      abortControllerRef.current = null;
+    }
+    ttsQueue.cancel(); // 杀掉正在播报的语音
+    dispatch(setLoading(false)); // 恢复输入框状态
+  };
 
-  return { sendMessage };
+  return { sendMessage, stopStreaming };
 };
