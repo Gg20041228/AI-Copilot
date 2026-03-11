@@ -9,7 +9,7 @@ import {
   message,
 } from "antd";
 import { ClearOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
-import { useAppDispatch } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { clearChat } from "../store/chatSlice";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
@@ -17,11 +17,15 @@ import "./ChatHeader.css";
 
 const { Header } = Layout;
 const { Text } = Typography;
+import { useChatStream } from "../hooks/useChatStream";
 
 export const ChatHeader = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState<string>("");
+  const { generateReport } = useChatStream();
+  const { messages, isLoading } = useAppSelector((state) => state.chat);
+  const canEndInterview = messages.length > 2 && !isLoading;
 
   // 组件挂载时，获取当前登录的 Supabase 用户信息
   useEffect(() => {
@@ -77,6 +81,14 @@ export const ChatHeader = () => {
 
       {/* 右侧：操作区*/}
       <Space size="middle" className="chat-header-right">
+        <Button
+          onClick={generateReport}
+          danger
+          disabled={!canEndInterview}
+          loading={isLoading}
+        >
+          结束面试
+        </Button>
         <Button
           type="text"
           icon={<ClearOutlined />}

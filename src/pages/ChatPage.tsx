@@ -5,6 +5,7 @@ import { ChatHeader } from "../components/ChatHeader";
 import { MessageList } from "../components/MessageList";
 import { MessageInput } from "../components/MessageInput";
 import { HistorySider } from "../components/HistorySider";
+import { ReportModal } from "../components/ReportModal";
 import { useAppSelector } from "../store/hooks";
 import { supabase } from "../lib/supabase";
 import "./ChatPage.css";
@@ -30,54 +31,59 @@ export const ChatPage = () => {
   );
 
   return (
-    <Layout className="app-layout chat-page-layout">
-      <Button
-        type="text"
-        className="sider-toggle-btn"
-        icon={isSiderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-        onClick={() => setIsSiderCollapsed((prev) => !prev)}
-        aria-label={
-          isSiderCollapsed ? "Expand history panel" : "Collapse history panel"
-        }
-      />
+    <>
+      <Layout className="app-layout chat-page-layout">
+        <Button
+          type="text"
+          className="sider-toggle-btn"
+          icon={
+            isSiderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
+          }
+          onClick={() => setIsSiderCollapsed((prev) => !prev)}
+          aria-label={
+            isSiderCollapsed ? "Expand history panel" : "Collapse history panel"
+          }
+        />
 
-      <Sider
-        className="history-sider"
-        width={280}
-        collapsedWidth={0}
-        collapsible
-        trigger={null}
-        collapsed={isSiderCollapsed}
-        onCollapse={setIsSiderCollapsed}
-        breakpoint="lg"
-        onBreakpoint={(broken) => setIsSiderCollapsed(broken)}
-      >
-        <HistorySider />
-      </Sider>
+        <Sider
+          className="history-sider"
+          width={280}
+          collapsedWidth={0}
+          collapsible
+          trigger={null}
+          collapsed={isSiderCollapsed}
+          onCollapse={setIsSiderCollapsed}
+          breakpoint="lg"
+          onBreakpoint={(broken) => setIsSiderCollapsed(broken)}
+        >
+          <HistorySider />
+        </Sider>
 
-      <Layout className="chat-main-layout chat-page-main">
-        <ChatHeader />
+        <Layout className="chat-main-layout chat-page-main">
+          <ChatHeader />
 
-        <Content className="chat-content chat-page-content">
-          {hasMessages ? (
-            <MessageList />
-          ) : (
-            <section className="chat-empty-state">
-              <h1 className="chat-empty-title">{welcomeTitle}</h1>
-              <p className="chat-empty-subtitle">
-                可以直接输入岗位、技术栈或面试方向
-              </p>
-              <MessageInput variant="center" />
-            </section>
+          <Content className="chat-content chat-page-content">
+            {hasMessages ? (
+              <MessageList />
+            ) : (
+              <section className="chat-empty-state">
+                <h1 className="chat-empty-title">{welcomeTitle}</h1>
+                <p className="chat-empty-subtitle">
+                  可以直接输入岗位、技术栈或面试方向
+                </p>
+                <MessageInput variant="center" />
+              </section>
+            )}
+          </Content>
+
+          {hasMessages && (
+            <Footer className="chat-footer chat-page-footer">
+              <MessageInput />
+            </Footer>
           )}
-        </Content>
-
-        {hasMessages && (
-          <Footer className="chat-footer chat-page-footer">
-            <MessageInput />
-          </Footer>
-        )}
+        </Layout>
       </Layout>
-    </Layout>
+      <ReportModal />
+    </>
   );
 };

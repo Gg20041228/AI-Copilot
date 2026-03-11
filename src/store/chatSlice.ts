@@ -16,6 +16,11 @@ export interface Session {
   created_at: string;
 }
 
+export interface InterviewReport {
+  scores: { item: string; score: number }[];
+  suggestions: string[];
+}
+
 // 定义整个Slice的状态类型
 interface ChatState {
   messages: Message[];
@@ -26,6 +31,8 @@ interface ChatState {
   // isEditorOpen: boolean; // 控制右侧编辑器是否弹出
   // currentCode: string; // 存储编辑器内的代码内容
   // editorLanguage: string;
+  report: InterviewReport | null;
+  isReportModalOpen: boolean;
 }
 
 // 初始化默认状态
@@ -38,6 +45,8 @@ const initialState: ChatState = {
   // isEditorOpen: false, // 默认隐藏，等待面试官“唤醒”
   // currentCode: "// 在这里编写你的代码...\n",
   // editorLanguage: "javascript",
+  report: null,
+  isReportModalOpen: false,
 };
 
 // ==========================================
@@ -189,6 +198,12 @@ const chatSlice = createSlice({
     // setEditorLanguage: (state, action: PayloadAction<string>) => {
     //   state.editorLanguage = action.payload;
     // },
+    setReport: (state, action: PayloadAction<InterviewReport | null>) => {
+      state.report = action.payload;
+    },
+    setReportModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isReportModalOpen = action.payload;
+    },
   },
   // 监听上面的异步 Thunks 的生命周期
   extraReducers: (builder) => {
@@ -237,6 +252,8 @@ export const {
   setLoading,
   clearChat,
   setResumeContext,
+  setReport,
+  setReportModalOpen,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

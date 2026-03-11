@@ -7,6 +7,8 @@ import {
   saveMessageToDB,
   renameSession,
   createNewSession, // 新增：引入创建会话的 Thunk
+  setReport,
+  setReportModalOpen,
 } from "../store/chatSlice";
 import { message } from "antd";
 import { supabase } from "../lib/supabase"; // 新增：引入 supabase 获取当前用户
@@ -260,5 +262,56 @@ ${resumeContext.substring(0, 3000)}
     dispatch(setLoading(false)); // 恢复输入框状态
   };
 
-  return { sendMessage, stopStreaming };
+  const generateReport = async () => {
+    dispatch(setLoading(true));
+
+    const reportPrompt = `请根据面试记录，严格按以下 JSON 格式输出评估报告（不要有任何额外文字）：
+    {
+      "scores": [
+        {"item": "技术深度", "score": 80},
+        {"item": "沟通表达", "score": 80},
+        {"item": "逻辑思维", "score": 80},
+        {"item": "代码素养", "score": 80},
+        {"item": "项目经验", "score": 80}
+      ],
+      "suggestions": ["建议1", "建议2"]
+    }`;
+
+    try {
+      const response = await fetch(
+        "https://api.deepseek.com/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_DEEPSEEK_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [
+              {
+                role: "system",
+                content: "你是一个资深考官，只输出JSON格式的报告",
+              },
+              ...messages.map((m) => ({ role: m.role, content: m.content })),
+              { role: "user", content: reportPrompt },
+            ],
+            response_format: { type: "json_object" },
+          }),
+        },
+      );
+
+      const res = await response.json();
+      const reportContent = JSON.parse(res.choices[0].message.content);
+
+      dispatch(setReport(reportContent));
+      dispatch(setReportModalOpen(true)); // 🌟 弹出报告
+    } catch (error) {
+      console.error("生成报告出错", error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  return { sendMessage, stopStreaming, generateReport };
 };
